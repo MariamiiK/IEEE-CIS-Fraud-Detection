@@ -528,14 +528,10 @@ CV AUC-ის მიხედვით LightGBM (0.951) და XGBoost (0.9493) 
 
 ### ექსპერიმენტების სტრუქტურა
 
-| Experiment | მთავარი Runs |
-
-| `LogisticRegression_Training` (exp/0) | LR_Cleaning, LR_Feature_Selection, LR_Underfit, LR_Baseline, LR_Overfit, LR_C_0.001..10, LR_penalty_l1/l2, LR_CrossValidation, LR_FinalModel |
-| `XGBoost_Training` (exp/1) | XGBoost_Cleaning, XGBoost_Feature_Selection, XGBoost_Baseline, XGBoost_lr_*, XGBoost_depth_*, XGBoost_sub*_col*, XGBoost_spw_*, XGBoost_Optuna_Search, XGBoost_CrossValidation, XGBoost_FinalModel |
-| `DecisionTree_Training` (exp/2) | DecisionTree_Cleaning, DecisionTree_Feature_Selection, DT_depth_*, DT_extreme_underfit..severe_overfit, DecisionTree_CrossValidation, DecisionTree_FinalModel |
-| `RandomForest_Training` (exp/3) | RandomForest_Cleaning, RandomForest_Feature_Selection, RF_Baseline, RF_n_estimators_*, RF_depth_*, RF_max_features_*, RF_cw_*, RF_extreme_underfit..overfit, RandomForest_CrossValidation, RandomForest_FinalModel |
-| `LightGBM_Training` (exp/4) | LightGBM_Cleaning, LightGBM_Feature_Selection, LightGBM_Baseline, LightGBM_lr_*, LightGBM_leaves_*, LightGBM_sub*_col*, LightGBM_Optuna_Search, LightGBM_CrossValidation, LightGBM_FinalModel |
-| `NeuralNetwork_Training` (exp/5) | NeuralNetwork_Cleaning, NeuralNetwork_Feature_Selection, NN_Baseline, NN_arch_*, NN_dropout_*, NN_lr_*, NN_extreme_underfit..severe_overfit, NN_Optuna_Search, NN_CrossValidation, NN_FinalModel |
+- Data cleaning & feature selection
+- Hyperparameter tuning (manual + Optuna)
+- Overfitting/underfitting analysis
+- Cross-validation & final model
 
 ![MLflow Experiments](images/mlflow_experiments.png)
 
