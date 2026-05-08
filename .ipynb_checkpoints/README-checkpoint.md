@@ -519,7 +519,6 @@ LightGBM ავარჩიე რამდენიმე მიზეზით
 - Overfitting/underfitting analysis
 - Cross-validation & final model
 
-![MLflow Experiments](images/mlflow_experiments.png)
 
 ### ჩაწერილი მეტრიკები
 
