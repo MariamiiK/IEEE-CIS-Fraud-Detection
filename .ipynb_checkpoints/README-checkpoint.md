@@ -151,6 +151,8 @@ StratifiedKFold კრიტიკულია **27.6:1 class imbalance-ის**
 
 ## Logistic Regression
 
+baseline-ზე C=1.0-ით val AUC 0.74 იყო — და რაც C-ს ვცვლიდი, შედეგი თითქმის არ იცვლებოდა. ეს მაშინვე მაჩვენა რომ პრობლემა პარამეტრებში კი არა, მოდელის სიმარტივეში იყო
+
 ### Hyperparameter ოპტიმიზაცია
 
 **C (Regularization):**
@@ -184,6 +186,8 @@ StratifiedKFold კრიტიკულია **27.6:1 class imbalance-ის**
 
 ## Decision Tree
 
+depth=1-დან დავიწყე და თანდათან გავზარდე — depth=8 იყო ის წერტილი სადაც train/val gap ჯერ კიდევ გონივრული იყო.
+
 ### Overfitting vs Underfitting ანალიზი
 
 | depth | Train AUC | Val AUC | Gap | სტატუსი |
@@ -213,11 +217,7 @@ Fold 1: 0.8518, Fold 2: 0.8475, Fold 3: 0.8508, Fold 4: 0.8465, Fold 5: 0.8501
 
 ## Random Forest
 
-### Baseline
-
-Train: 1.0 | OOB: 0.909 | Val: **0.9238** | Gap: 0.0762
-
-OOB AUC ≈ Val AUC — ადასტურებს bootstrap resampling-ის სისწორეს. Train=1.0 overfitting-ის ნიშანია, მაგრამ OOB/Val ჯერ კიდევ მაღალია
+საწყის baseline-ზე train AUC=1.0 იყო — overfitting-ის აშკარა ნიშანი, თუმცა OOB და Val 0.92-ზე რჩებოდა, რაც bagging-ის ეფექტს ადასტურებს. შემდეგ ვცადე სხვადასხვა პარამეტრები:
 
 ### n_estimators sweep
 
@@ -277,9 +277,7 @@ Fold 1: 0.8964, Fold 2: 0.8964, Fold 3: 0.9021 → **Mean: 0.8983 ± 0.0027**
 
 ## XGBoost
 
-### Baseline
-
-Train: 0.9861 | Val: **0.9512** | Gap: 0.0349 | Best_n: 999
+baseline-ზე val AUC 0.9512 — უკვე კარგი შედეგი, მაგრამ train=0.9861 gap-ს აჩვენებდა. early stopping best_n=999 იყო, რაც მეტი ტრენინგის საჭიროებაზე მიუთითებდა.
 
 ### learning_rate sweep
 
@@ -348,11 +346,7 @@ Fold 1: 0.9470, Fold 2: 0.9486, Fold 3: 0.9522 → **Mean: 0.9493 ± 0.0022**
 
 ## LightGBM
 
-### Baseline
-
-Train: 0.8416 | Val: **0.8397** | Gap: 0.0019 | Best_n: 1 (early stopping-ით)
-
-GPU: Tesla T4 — LightGBM GPU trainer აჩქარებს training-ს.
+baseline val AUC მხოლოდ 0.84 იყო — early stopping პირველ iteration-ზე გაჩერდა (best_n=1), რაც learning rate-ის პრობლემაზე მიუთითებდა. lr=0.30-ზე გადასვლის შემდეგ 0.95-მდე ავიდა.
 
 ### learning_rate sweep
 
@@ -403,9 +397,7 @@ Fold 1: 0.9497, Fold 2: 0.9503, Fold 3: 0.9519 → **Mean: 0.951 ± 0.001**
 
 Custom PyTorch `FraudNet`: Linear → BatchNorm1d → ReLU → Dropout, სიღრმეში. Loss: BCEWithLogitsLoss, pos_weight=27.58 (imbalance კომპენსაცია). Optimizer: Adam + ReduceLROnPlateau scheduler. Early stopping patience=5.
 
-### Baseline
-
-`[256 → 128 → 64]`, dropout=0.3, lr=1e-3 → Train: 0.9261 | Val: **0.9071** | Gap: 0.019
+baseline არქიტექტურა [256→128→64]-ით val AUC 0.907 გამოვიდა — გონივრული საწყისი წერტილი, მაგრამ gap=0.019 მეტი regularization-ის საჭიროებაზე მიუთითებდა.
 
 ### Architecture sweep
 
@@ -477,11 +469,8 @@ Fold 1: 0.9338, Fold 2: 0.9278, Fold 3: 0.9273 → **Mean: 0.9296 ± 0.003**
 
 **საუკეთესო მოდელი: LightGBM (Optuna Tuned)**
 
-CV AUC-ის მიხედვით LightGBM (0.951) და XGBoost (0.9493) პრაქტიკულად ექვივალენტურია. LightGBM-ი გამარჯვებულია:
-- **სწრაფი training** GPU-ზე (Tesla T4, histogram-based algorithm)
-- **მაღალი CV AUC** 3-fold: 0.951 ± 0.001
-- **GPU-სპეციფიკური ოპტიმიზაცია** (OpenCL kernel compilation)
-- **მეხსიერების ეფექტური** დიდ dataset-ებზე
+CV AUC-ის მიხედვით LightGBM (0.951) და XGBoost (0.9493) პრაქტიკულად ექვივალენტურია. 
+LightGBM ავარჩიე რამდენიმე მიზეზით: CV AUC-ით XGBoost-ს უსწრებს (0.951 vs 0.9493), GPU-ზე (Tesla T4) მნიშვნელოვნად სწრაფია histogram-based algorithm-ის გამო, და დიდ dataset-ებზე მეხსიერებას ეფექტურად იყენებს.
 
 ყველა მოდელი შენახულია **sklearn Pipeline-ად** (`SimpleImputer → Scaler → Model`), რაც test set-ზე პირდაპირ გაშვების საშუალებას იძლევა preprocessing-ის გარეშე
 
@@ -510,10 +499,8 @@ CV AUC-ის მიხედვით LightGBM (0.951) და XGBoost (0.9493) 
 
 ### ჩაწერილი მეტრიკები
 
-ყველა run-ზე: `train_auc`, `val_auc`, `gap` (train-val სხვაობა), `fit_time_s`.
-CV run-ებზე: `cv_auc_mean`, `cv_auc_std`, `fold_1_auc`...`fold_N_auc`.
-XGBoost/LightGBM run-ებზე: `best_n_estimators` (early stopping).
-FinalModel run-ებზე: `final_val_auc`, pipeline artifacts, model weights.
+ყველა run-ზე train/val AUC და gap ვლოგავდი. CV run-ებზე fold-ების შედეგები ცალ-ცალკე, XGBoost და LightGBM-ზე კი best_n_estimators early stopping-იდან.
+
 
 ### Model Registry
 
@@ -537,13 +524,7 @@ FinalModel run-ებზე: `final_val_auc`, pipeline artifacts, model weights.
 
 CV AUC (0.951) და Public LB (0.8386) სხვაობის ანალიზი:
 
-სხვაობა აიხსნება მონაცემთა დროითი სტრუქტურით:
-
-Chronological Order: Training ტრანზაქციები წინ უსწრებს სატესტოებს.
-
-K-Fold Shuffle: სტანდარტული K-Fold Cross-Validation მონაცემებს "ურევს" (shuffle), რის გამოც მოდელი ვალიდაციისას ხედავს "მომავლის" მონაცემებს. ეს იწვევს CV AUC-ის ხელოვნურ ზრდას (Inflation).
-
-Real-world Scenario: Kaggle-ის Public LB არის მკაცრად training პერიოდის შემდგომი მონაცემები, რაც გაცილებით რთული და რეალისტური ამოცანაა.
+სხვაობა აიხსნება იმით, რომ K-Fold shuffle-ით მოდელი ვალიდაციაში "მომავლის" მონაცემებს ხედავს, რაც CV AUC-ს ხელოვნურად ზრდის. Kaggle-ის test set კი მკაცრად training პერიოდის შემდეგია
 
 
 ![Kaggle Score](images/Score.jpeg)
